@@ -28,10 +28,10 @@ def download_models(folder=CACHE_DIR_4DHUMANS):
                 print("Extracting file: " + file_name)
                 os.system("tar -xvf " + output_path + " -C " + url[1])
 
-def check_smpl_exists():
+def check_smpl_exists(folder=CACHE_DIR_4DHUMANS):
     import os
     candidates = [
-        f'{CACHE_DIR_4DHUMANS}/data/smpl/SMPL_NEUTRAL.pkl',
+        f'{folder}/data/smpl/SMPL_NEUTRAL.pkl',
         f'data/basicModel_neutral_lbs_10_207_0_v1.0.0.pkl',
     ]
     candidates_exist = [os.path.exists(c) for c in candidates]
@@ -65,11 +65,11 @@ def convert_pkl(old_pkl, new_pkl):
         pickle.dump(loaded, outfile)
 
 DEFAULT_CHECKPOINT=f'{CACHE_DIR_4DHUMANS}/logs/train/multiruns/hmr2/0/checkpoints/epoch=35-step=1000000.ckpt'
-def load_hmr2(checkpoint_path=DEFAULT_CHECKPOINT):
+def load_hmr2(checkpoint_path=DEFAULT_CHECKPOINT, smpl_folder=CACHE_DIR_4DHUMANS):
     from pathlib import Path
     from ..configs import get_config
     model_cfg = str(Path(checkpoint_path).parent.parent / 'model_config.yaml')
-    model_cfg = get_config(model_cfg, update_cachedir=True)
+    model_cfg = get_config(model_cfg, update_cachedir=True, cachedir=smpl_folder)
 
     # Override some config values, to crop bbox correctly
     if (model_cfg.MODEL.BACKBONE.TYPE == 'vit') and ('BBOX_SHAPE' not in model_cfg.MODEL):
@@ -79,7 +79,7 @@ def load_hmr2(checkpoint_path=DEFAULT_CHECKPOINT):
         model_cfg.freeze()
 
     # Ensure SMPL model exists
-    check_smpl_exists()
+    check_smpl_exists(smpl_folder)
 
     model = HMR2.load_from_checkpoint(checkpoint_path, strict=False, cfg=model_cfg)
     return model, model_cfg

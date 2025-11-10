@@ -87,7 +87,7 @@ def dataset_config(name='datasets_tar.yaml') -> CN:
 def dataset_eval_config() -> CN:
     return dataset_config('datasets_eval.yaml')
 
-def get_config(config_file: str, merge: bool = True, update_cachedir: bool = False) -> CN:
+def get_config(config_file: str, merge: bool = True, update_cachedir: bool = False, cachedir: str = CACHE_DIR_4DHUMANS) -> CN:
     """
     Read a config file and optionally merge it with the default config file.
     Args:
@@ -106,7 +106,7 @@ def get_config(config_file: str, merge: bool = True, update_cachedir: bool = Fal
       def update_path(path: str) -> str:
         if os.path.isabs(path):
           return path
-        return os.path.join(CACHE_DIR_4DHUMANS, path)
+        return os.path.join(cachedir, path)
 
       cfg.SMPL.MODEL_PATH = update_path(cfg.SMPL.MODEL_PATH)
       cfg.SMPL.JOINT_REGRESSOR_EXTRA = update_path(cfg.SMPL.JOINT_REGRESSOR_EXTRA)
